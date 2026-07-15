@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Super Adventure</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="game-container">
+    <div id="menu-screen" class="screen active">
+      <div class="menu-content">
+        <h1 class="game-title">
+          <span class="title-super">SUPER</span>
+          <span class="title-adventure">ADVENTURE</span>
+        </h1>
+        <p class="subtitle">A Modern Platformer</p>
+        <div class="menu-buttons">
+          <button class="btn btn-play" onclick="startGame()">▶ JUGAR</button>
+          <button class="btn btn-controls" onclick="showControls()">🎮 CONTROLES</button>
+        </div>
+        <div class="stars-bg"></div>
+      </div>
+    </div>
+
+    <div id="controls-screen" class="screen">
+      <div class="controls-content">
+        <h2>CONTROLES</h2>
+        <div class="control-list">
+          <div class="control-item"><span class="key">← →</span><span>Mover</span></div>
+          <div class="control-item"><span class="key">ESPACIO</span><span>Saltar</span></div>
+          <div class="control-item"><span class="key">ESPACIO x2</span><span>Doble salto</span></div>
+          <div class="control-item"><span class="key">ESC</span><span>Pausar</span></div>
+        </div>
+        <div class="speed-selector">
+          <p class="speed-label">⚡ VELOCIDAD DEL PERSONAJE</p>
+          <div class="speed-buttons">
+            <button class="btn-speed" onclick="setSpeed(2.5)" id="speed-lento">🐢 LENTO</button>
+            <button class="btn-speed active" onclick="setSpeed(4.5)" id="speed-normal">🚶 NORMAL</button>
+            <button class="btn-speed" onclick="setSpeed(7)" id="speed-rapido">🏃 RÁPIDO</button>
+            <button class="btn-speed" onclick="setSpeed(10)" id="speed-turbo">🚀 TURBO</button>
+          </div>
+        </div>
+        <button class="btn btn-back" onclick="showMenu()">← VOLVER</button>
+      </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+      <canvas id="gameCanvas"></canvas>
+      <div id="hud">
+        <div class="hud-item">❤️ <span id="lives">3</span></div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">🪙 <span id="coins">0</span></div>
+        <div class="hud-item">📍 Nivel <span id="level">1</span></div>
+      </div>
+      <div id="pause-overlay" class="hidden">
+        <div class="pause-box">
+          <h2>PAUSA</h2>
+          <button class="btn btn-play" onclick="resumeGame()">▶ CONTINUAR</button>
+          <button class="btn btn-back" onclick="showMenu()">🏠 MENÚ</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameover-screen" class="screen">
+      <div class="gameover-content">
+        <h2 class="gameover-title">GAME OVER</h2>
+        <p>Puntuación: <span id="final-score">0</span></p>
+        <button class="btn btn-play" onclick="startGame()">🔄 REINTENTAR</button>
+        <button class="btn btn-back" onclick="showMenu()">🏠 MENÚ</button>
+      </div>
+    </div>
+
+    <div id="win-screen" class="screen">
+      <div class="win-content">
+        <h2 class="win-title">¡GANASTE! 🎉</h2>
+        <p>Puntuación final: <span id="win-score">0</span></p>
+        <button class="btn btn-play" onclick="startGame()">🔄 JUGAR DE NUEVO</button>
+        <button class="btn btn-back" onclick="showMenu()">🏠 MENÚ</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
