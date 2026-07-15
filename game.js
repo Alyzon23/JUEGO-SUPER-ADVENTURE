@@ -68,9 +68,10 @@ const player = {
     this.trail.push({ x: this.x + this.w / 2, y: this.y + this.h / 2 });
     if (this.trail.length > 8) this.trail.shift();
 
-    // Colisión plataformas
+    // Colisión plataformas (fijas + móviles)
     this.onGround = false;
-    for (const p of currentLevel.platforms) {
+    const allPlats = [...currentLevel.platforms, ...currentLevel.movingPlatforms];
+    for (const p of allPlats) {
       if (rectOverlap(this, p)) resolveCollision(this, p);
     }
     if (this.onGround) this.jumpsLeft = 2;
@@ -148,46 +149,126 @@ const player = {
 //  NIVELES
 // ═══════════════════════════════════════════════
 function buildLevel(n) {
-  const colors = ['#1a3a6e', '#1a4a2e', '#4a1a3e'];
-  const bgColor = colors[(n - 1) % colors.length];
 
-  const platforms = [
-    // Suelo base
-    { x: 0,    y: 520, w: 400,  h: 80, color: '#2d5a8e' },
-    { x: 450,  y: 520, w: 300,  h: 80, color: '#2d5a8e' },
-    { x: 800,  y: 520, w: 400,  h: 80, color: '#2d5a8e' },
-    { x: 1250, y: 520, w: 350,  h: 80, color: '#2d5a8e' },
-    { x: 1650, y: 520, w: 500,  h: 80, color: '#2d5a8e' },
-    // Plataformas flotantes
-    { x: 200,  y: 400, w: 120,  h: 20, color: '#3d7abf' },
-    { x: 420,  y: 340, w: 100,  h: 20, color: '#3d7abf' },
-    { x: 600,  y: 280, w: 130,  h: 20, color: '#3d7abf' },
-    { x: 780,  y: 360, w: 110,  h: 20, color: '#3d7abf' },
-    { x: 950,  y: 300, w: 140,  h: 20, color: '#3d7abf' },
-    { x: 1100, y: 380, w: 100,  h: 20, color: '#3d7abf' },
-    { x: 1280, y: 320, w: 120,  h: 20, color: '#3d7abf' },
-    { x: 1450, y: 260, w: 130,  h: 20, color: '#3d7abf' },
-    { x: 1620, y: 340, w: 110,  h: 20, color: '#3d7abf' },
-  ];
+  // ── NIVEL 1: ESPACIO ──
+  if (n === 1) {
+    return {
+      bgColor: '#0a0a2e', bgType: 'space',
+      platforms: [
+        { x: 0,    y: 520, w: 400, h: 80, color: '#2d5a8e' },
+        { x: 450,  y: 520, w: 300, h: 80, color: '#2d5a8e' },
+        { x: 800,  y: 520, w: 400, h: 80, color: '#2d5a8e' },
+        { x: 1250, y: 520, w: 350, h: 80, color: '#2d5a8e' },
+        { x: 1650, y: 520, w: 500, h: 80, color: '#2d5a8e' },
+        { x: 200,  y: 400, w: 120, h: 20, color: '#3d7abf' },
+        { x: 420,  y: 340, w: 100, h: 20, color: '#3d7abf' },
+        { x: 600,  y: 280, w: 130, h: 20, color: '#3d7abf' },
+        { x: 780,  y: 360, w: 110, h: 20, color: '#3d7abf' },
+        { x: 950,  y: 300, w: 140, h: 20, color: '#3d7abf' },
+        { x: 1100, y: 380, w: 100, h: 20, color: '#3d7abf' },
+        { x: 1280, y: 320, w: 120, h: 20, color: '#3d7abf' },
+        { x: 1450, y: 260, w: 130, h: 20, color: '#3d7abf' },
+        { x: 1620, y: 340, w: 110, h: 20, color: '#3d7abf' },
+      ],
+      movingPlatforms: [],
+      spikes: [],
+      coins: mkCoins([[250,370],[470,310],[650,250],[830,330],[1000,270],[1150,350],[1330,290],[1500,230],[1670,310]]),
+      enemies: [
+        { x: 500,  y: 490, w: 36, h: 36, vx: 1.5,  minX: 450,  maxX: 730,  type: 'walk', dead: false },
+        { x: 850,  y: 490, w: 36, h: 36, vx: -1.5, minX: 800,  maxX: 1180, type: 'walk', dead: false },
+        { x: 1300, y: 490, w: 36, h: 36, vx: 1.5,  minX: 1250, maxX: 1580, type: 'walk', dead: false },
+        { x: 630,  y: 250, w: 36, h: 36, vx: 1.2,  minX: 600,  maxX: 720,  type: 'walk', dead: false },
+      ],
+      goal: { x: 2000, y: 430, w: 60, h: 90 },
+      width: 2200
+    };
+  }
 
-  const coins = [];
-  [[250,370],[470,310],[650,250],[830,330],[1000,270],[1150,350],[1330,290],[1500,230],[1670,310],
-   [280,370],[500,310],[680,250],[860,330],[1030,270]].forEach(([x,y]) => {
-    coins.push({ x, y, w: 20, h: 20, collected: false, bobOffset: Math.random() * Math.PI * 2 });
-  });
+  // ── NIVEL 2: BOSQUE ──
+  if (n === 2) {
+    return {
+      bgColor: '#0a2010', bgType: 'forest',
+      platforms: [
+        { x: 0,    y: 520, w: 350, h: 80, color: '#3a6b2a' },
+        { x: 420,  y: 520, w: 280, h: 80, color: '#3a6b2a' },
+        { x: 780,  y: 520, w: 350, h: 80, color: '#3a6b2a' },
+        { x: 1200, y: 520, w: 300, h: 80, color: '#3a6b2a' },
+        { x: 1600, y: 520, w: 500, h: 80, color: '#3a6b2a' },
+        { x: 180,  y: 420, w: 110, h: 20, color: '#4a8a3a' },
+        { x: 500,  y: 360, w: 100, h: 20, color: '#4a8a3a' },
+        { x: 900,  y: 300, w: 120, h: 20, color: '#4a8a3a' },
+        { x: 1100, y: 380, w: 110, h: 20, color: '#4a8a3a' },
+        { x: 1350, y: 300, w: 130, h: 20, color: '#4a8a3a' },
+        { x: 1550, y: 380, w: 100, h: 20, color: '#4a8a3a' },
+      ],
+      movingPlatforms: [
+        { x: 650,  y: 280, w: 110, h: 20, color: '#5aaa4a', minX: 600,  maxX: 800,  vy: 0, vx: 1.5 },
+        { x: 1200, y: 260, w: 110, h: 20, color: '#5aaa4a', minX: 1150, maxX: 1380, vy: 0, vx: -1.5 },
+        { x: 1700, y: 350, w: 100, h: 20, color: '#5aaa4a', minX: 1650, maxX: 1900, vy: 0, vx: 1.2 },
+      ],
+      spikes: [
+        { x: 400,  y: 508, w: 20, h: 12 },
+        { x: 760,  y: 508, w: 20, h: 12 },
+        { x: 1180, y: 508, w: 20, h: 12 },
+        { x: 1580, y: 508, w: 20, h: 12 },
+      ],
+      coins: mkCoins([[230,390],[540,330],[700,250],[950,270],[1140,350],[1390,270],[1590,350],[1750,290]]),
+      enemies: [
+        { x: 450,  y: 490, w: 36, h: 36, vx: 2,    minX: 420,  maxX: 680,  type: 'walk', dead: false },
+        { x: 820,  y: 490, w: 36, h: 36, vx: -2,   minX: 780,  maxX: 1100, type: 'walk', dead: false },
+        { x: 1250, y: 490, w: 36, h: 36, vx: 2,    minX: 1200, maxX: 1480, type: 'jump', dead: false, jumpTimer: 0 },
+        { x: 1650, y: 490, w: 36, h: 36, vx: -2,   minX: 1600, maxX: 1950, type: 'jump', dead: false, jumpTimer: 60 },
+        { x: 900,  y: 270, w: 36, h: 36, vx: 1.5,  minX: 900,  maxX: 1000, type: 'walk', dead: false },
+      ],
+      goal: { x: 2050, y: 430, w: 60, h: 90 },
+      width: 2300
+    };
+  }
 
-  const enemies = [
-    { x: 500,  y: 490, w: 36, h: 36, vx: 1.5,  minX: 450,  maxX: 730,  frame: 0, ft: 0 },
-    { x: 850,  y: 490, w: 36, h: 36, vx: -1.5, minX: 800,  maxX: 1180, frame: 0, ft: 0 },
-    { x: 1300, y: 490, w: 36, h: 36, vx: 1.5,  minX: 1250, maxX: 1580, frame: 0, ft: 0 },
-    { x: 630,  y: 250, w: 36, h: 36, vx: 1.2,  minX: 600,  maxX: 720,  frame: 0, ft: 0 },
-    { x: 960,  y: 270, w: 36, h: 36, vx: -1.2, minX: 950,  maxX: 1070, frame: 0, ft: 0 },
-  ];
+  // ── NIVEL 3: VOLCÁN ──
+  return {
+    bgColor: '#1a0500', bgType: 'volcano',
+    platforms: [
+      { x: 0,    y: 520, w: 300, h: 80, color: '#6b2a0a' },
+      { x: 380,  y: 520, w: 250, h: 80, color: '#6b2a0a' },
+      { x: 720,  y: 520, w: 300, h: 80, color: '#6b2a0a' },
+      { x: 1120, y: 520, w: 280, h: 80, color: '#6b2a0a' },
+      { x: 1500, y: 520, w: 600, h: 80, color: '#6b2a0a' },
+      { x: 150,  y: 420, w: 100, h: 20, color: '#8b4a1a' },
+      { x: 480,  y: 360, w: 100, h: 20, color: '#8b4a1a' },
+      { x: 850,  y: 300, w: 110, h: 20, color: '#8b4a1a' },
+      { x: 1150, y: 380, w: 100, h: 20, color: '#8b4a1a' },
+      { x: 1400, y: 300, w: 110, h: 20, color: '#8b4a1a' },
+    ],
+    movingPlatforms: [
+      { x: 650,  y: 260, w: 100, h: 20, color: '#cc5500', minX: 580,  maxX: 820,  vx: 2,    vy: 0 },
+      { x: 1250, y: 240, w: 100, h: 20, color: '#cc5500', minX: 1100, maxX: 1380, vx: -2,   vy: 0 },
+      { x: 1700, y: 400, w: 90,  h: 20, color: '#cc5500', minX: 1500, maxX: 1900, vx: 0,    vy: 1.5, minY: 350, maxY: 480 },
+    ],
+    spikes: [
+      { x: 360,  y: 508, w: 20, h: 12 },
+      { x: 700,  y: 508, w: 20, h: 12 },
+      { x: 720,  y: 508, w: 20, h: 12 },
+      { x: 1100, y: 508, w: 20, h: 12 },
+      { x: 1480, y: 508, w: 20, h: 12 },
+      { x: 1500, y: 508, w: 20, h: 12 },
+    ],
+    coins: mkCoins([[200,390],[520,330],[700,270],[900,270],[1200,350],[1450,270],[1700,370]]),
+    enemies: [
+      { x: 400,  y: 490, w: 36, h: 36, vx: 2.5,  minX: 380,  maxX: 600,  type: 'chase', dead: false },
+      { x: 750,  y: 490, w: 36, h: 36, vx: -2.5, minX: 720,  maxX: 980,  type: 'chase', dead: false },
+      { x: 1150, y: 490, w: 36, h: 36, vx: 2.5,  minX: 1120, maxX: 1370, type: 'jump',  dead: false, jumpTimer: 0 },
+      { x: 1550, y: 490, w: 36, h: 36, vx: -2.5, minX: 1500, maxX: 1950, type: 'chase', dead: false },
+      { x: 860,  y: 270, w: 36, h: 36, vx: 2,    minX: 850,  maxX: 940,  type: 'walk',  dead: false },
+      { x: 1410, y: 270, w: 36, h: 36, vx: -2,   minX: 1400, maxX: 1490, type: 'walk',  dead: false },
+    ],
+    goal: { x: 2100, y: 430, w: 60, h: 90 },
+    width: 2400
+  };
+}
 
-  // Tubo verde al final
-  const goal = { x: 2000, y: 430, w: 60, h: 90 };
-
-  return { bgColor, platforms, coins, enemies, goal, width: 2200 };
+function mkCoins(coords) {
+  return coords.map(([x, y]) => ({ x, y, w: 20, h: 20, collected: false, bobOffset: Math.random() * Math.PI * 2 }));
 }
 
 let currentLevel = buildLevel(1);
@@ -239,71 +320,128 @@ function drawParticles() {
 //  FONDO PARALLAX
 // ═══════════════════════════════════════════════
 function drawBackground() {
-  // Cielo degradado
   const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
   sky.addColorStop(0, currentLevel.bgColor);
   sky.addColorStop(1, '#050510');
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Estrellas (parallax lento)
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  const starSeed = [
-    [50,40],[150,80],[250,30],[350,90],[450,50],[550,20],[650,70],[750,45],[850,85],
-    [100,120],[200,150],[300,100],[400,130],[500,110],[600,140],[700,90],[800,160],
-    [120,200],[220,180],[320,220],[420,190],[520,210],[620,170],[720,230],[820,195],
-  ];
-  starSeed.forEach(([sx, sy]) => {
-    const px = ((sx - camera.x * 0.1) % canvas.width + canvas.width) % canvas.width;
-    ctx.beginPath();
-    ctx.arc(px, sy, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-  });
+  if (currentLevel.bgType === 'space') {
+    // Estrellas
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    [[50,40],[150,80],[250,30],[350,90],[450,50],[550,20],[650,70],[750,45],[850,85],
+     [100,120],[200,150],[300,100],[400,130],[500,110],[600,140],[700,90],[800,160],
+     [120,200],[220,180],[320,220],[420,190],[520,210],[620,170],[720,230],[820,195]]
+    .forEach(([sx,sy]) => {
+      const px = ((sx - camera.x * 0.1) % canvas.width + canvas.width) % canvas.width;
+      ctx.beginPath(); ctx.arc(px, sy, 1.5, 0, Math.PI*2); ctx.fill();
+    });
+    // Planeta lejano
+    const pOff = ((camera.x * 0.05) % 900 + 900) % 900;
+    ctx.shadowColor = '#ff8800'; ctx.shadowBlur = 20;
+    const pg = ctx.createRadialGradient(700 - pOff % 200, 120, 10, 700 - pOff % 200, 120, 50);
+    pg.addColorStop(0, '#ffaa44'); pg.addColorStop(1, '#cc4400');
+    ctx.fillStyle = pg;
+    ctx.beginPath(); ctx.arc(700 - pOff % 200, 120, 50, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+    // Montañas
+    ctx.fillStyle = 'rgba(30,50,100,0.5)';
+    ctx.beginPath(); ctx.moveTo(0, canvas.height);
+    const mOff = camera.x * 0.3;
+    [0,120,200,320,400,520,600,720,800,900].forEach((mx,i) => {
+      ctx.lineTo(((mx-mOff)%900+900)%900, canvas.height - (i%2===0?200:140));
+    });
+    ctx.lineTo(canvas.width, canvas.height); ctx.closePath(); ctx.fill();
+  }
 
-  // Montañas lejanas (parallax medio)
-  ctx.fillStyle = 'rgba(30,50,100,0.5)';
-  ctx.beginPath();
-  ctx.moveTo(0, canvas.height);
-  const mOffset = camera.x * 0.3;
-  [0,120,200,320,400,520,600,720,800,900].forEach((mx, i) => {
-    const h = i % 2 === 0 ? 200 : 140;
-    ctx.lineTo(((mx - mOffset) % 900 + 900) % 900, canvas.height - h);
-  });
-  ctx.lineTo(canvas.width, canvas.height);
-  ctx.closePath();
-  ctx.fill();
+  if (currentLevel.bgType === 'forest') {
+    // Cielo verde
+    ctx.fillStyle = 'rgba(0,80,20,0.3)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Árboles lejanos
+    const tOff = camera.x * 0.2;
+    [80,200,320,440,560,680,800,920,1040].forEach((tx, i) => {
+      const x = ((tx - tOff) % 1100 + 1100) % 1100;
+      const h = 120 + (i % 3) * 40;
+      ctx.fillStyle = `rgba(0,${60+i*8},0,0.5)`;
+      ctx.beginPath();
+      ctx.moveTo(x, canvas.height - 80);
+      ctx.lineTo(x - 40, canvas.height - 80 - h);
+      ctx.lineTo(x + 40, canvas.height - 80 - h);
+      ctx.closePath(); ctx.fill();
+    });
+    // Luna
+    ctx.shadowColor = '#aaffaa'; ctx.shadowBlur = 20;
+    ctx.fillStyle = '#ccffcc';
+    ctx.beginPath(); ctx.arc(800, 80, 35, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  if (currentLevel.bgType === 'volcano') {
+    // Lava en el fondo
+    ctx.fillStyle = 'rgba(180,40,0,0.15)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Volcanes lejanos
+    const vOff = camera.x * 0.25;
+    [100,300,500,700,900].forEach((vx, i) => {
+      const x = ((vx - vOff) % 1000 + 1000) % 1000;
+      const h = 150 + i * 30;
+      ctx.fillStyle = `rgba(${80+i*10},20,0,0.6)`;
+      ctx.beginPath();
+      ctx.moveTo(x - 60, canvas.height - 80);
+      ctx.lineTo(x, canvas.height - 80 - h);
+      ctx.lineTo(x + 60, canvas.height - 80);
+      ctx.closePath(); ctx.fill();
+      // Lava en la cima
+      ctx.fillStyle = `rgba(255,${100+i*20},0,0.8)`;
+      ctx.beginPath(); ctx.arc(x, canvas.height - 80 - h, 8, 0, Math.PI*2); ctx.fill();
+    });
+    // Partículas de lava flotando
+    ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 10;
+    ctx.fillStyle = 'rgba(255,100,0,0.6)';
+    [[100,400],[300,350],[500,420],[700,380],[850,410]].forEach(([lx,ly]) => {
+      const x = ((lx - camera.x*0.1)%900+900)%900;
+      const bob = Math.sin(tick*0.03 + lx)*8;
+      ctx.beginPath(); ctx.arc(x, ly+bob, 4, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.shadowBlur = 0;
+  }
 }
 
 // ═══════════════════════════════════════════════
 //  PLATAFORMAS
 // ═══════════════════════════════════════════════
 function drawPlatforms() {
-  currentLevel.platforms.forEach(p => {
+  const allPlats = [...currentLevel.platforms, ...currentLevel.movingPlatforms];
+  allPlats.forEach(p => {
     const px = p.x - camera.x;
     if (px + p.w < 0 || px > canvas.width) return;
-
-    // Sombra suave
-    ctx.shadowColor = 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 4;
-
+    ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4;
     const grad = ctx.createLinearGradient(px, p.y, px, p.y + p.h);
     grad.addColorStop(0, lighten(p.color, 20));
     grad.addColorStop(1, p.color);
     ctx.fillStyle = grad;
     roundRect(ctx, px, p.y, p.w, p.h, p.h > 40 ? 6 : 10);
     ctx.fill();
-
-    // Borde superior brillante
     ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(px + 10, p.y + 1);
-    ctx.lineTo(px + p.w - 10, p.y + 1);
-    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(px+10, p.y+1); ctx.lineTo(px+p.w-10, p.y+1); ctx.stroke();
   });
   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+  // Pinchos
+  currentLevel.spikes.forEach(s => {
+    const px = s.x - camera.x;
+    if (px + s.w < 0 || px > canvas.width) return;
+    ctx.shadowColor = '#ff4444'; ctx.shadowBlur = 8;
+    ctx.fillStyle = '#cc0000';
+    ctx.beginPath();
+    ctx.moveTo(px, s.y + s.h);
+    ctx.lineTo(px + s.w/2, s.y);
+    ctx.lineTo(px + s.w, s.y + s.h);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -353,36 +491,37 @@ function updateCoins() {
 //  ENEMIGOS
 // ═══════════════════════════════════════════════
 function drawEnemies() {
+  const colors = {
+    space:   { top: '#ff6b6b', bot: '#cc0000', shadow: '#ff4444', horn: '#ff8800' },
+    forest:  { top: '#6bff6b', bot: '#007700', shadow: '#44ff44', horn: '#ffaa00' },
+    volcano: { top: '#ff9944', bot: '#cc4400', shadow: '#ff6600', horn: '#ffff00' },
+  };
+  const c = colors[currentLevel.bgType] || colors.space;
+
   currentLevel.enemies.forEach(e => {
     if (e.dead) return;
     const px = e.x - camera.x;
     if (px + e.w < 0 || px > canvas.width) return;
-
-    ctx.shadowColor = '#ff4444';
-    ctx.shadowBlur = 12;
-
+    ctx.shadowColor = c.shadow; ctx.shadowBlur = 12;
     const grad = ctx.createLinearGradient(px, e.y, px + e.w, e.y + e.h);
-    grad.addColorStop(0, '#ff6b6b');
-    grad.addColorStop(1, '#cc0000');
+    grad.addColorStop(0, c.top); grad.addColorStop(1, c.bot);
     ctx.fillStyle = grad;
-    roundRect(ctx, px, e.y, e.w, e.h, 8);
-    ctx.fill();
-
-    // Ojos
+    roundRect(ctx, px, e.y, e.w, e.h, 8); ctx.fill();
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(px + 10, e.y + 12, 5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(px + 26, e.y + 12, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+10, e.y+12, 5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+26, e.y+12, 5, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#000';
-    ctx.beginPath(); ctx.arc(px + 11, e.y + 13, 3, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(px + 27, e.y + 13, 3, 0, Math.PI * 2); ctx.fill();
-
-    // Cuernos
-    ctx.fillStyle = '#ff8800';
-    ctx.beginPath();
-    ctx.moveTo(px + 8, e.y); ctx.lineTo(px + 4, e.y - 10); ctx.lineTo(px + 14, e.y); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(px + 22, e.y); ctx.lineTo(px + 18, e.y - 10); ctx.lineTo(px + 28, e.y); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+11, e.y+13, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+27, e.y+13, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = c.horn;
+    ctx.beginPath(); ctx.moveTo(px+8,e.y); ctx.lineTo(px+4,e.y-10); ctx.lineTo(px+14,e.y); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(px+22,e.y); ctx.lineTo(px+18,e.y-10); ctx.lineTo(px+28,e.y); ctx.fill();
+    // Signo de exclamación si persigue
+    if (e.type === 'chase' && Math.abs(player.x - e.x) < 400) {
+      ctx.fillStyle = '#ffff00'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('!', px + e.w/2, e.y - 5);
+    }
   });
   ctx.shadowBlur = 0;
 }
@@ -390,22 +529,57 @@ function drawEnemies() {
 function updateEnemies() {
   currentLevel.enemies.forEach(e => {
     if (e.dead) return;
-    e.x += e.vx;
-    if (e.x < e.minX || e.x + e.w > e.maxX) e.vx *= -1;
+
+    if (e.type === 'walk') {
+      e.x += e.vx;
+      if (e.x < e.minX || e.x + e.w > e.maxX) e.vx *= -1;
+    }
+
+    if (e.type === 'jump') {
+      e.x += e.vx;
+      if (e.x < e.minX || e.x + e.w > e.maxX) e.vx *= -1;
+      e.jumpTimer = (e.jumpTimer || 0) + 1;
+      if (!e.vy) e.vy = 0;
+      e.vy += 0.5;
+      e.y += e.vy;
+      if (e.y >= e.baseY) { e.y = e.baseY; e.vy = 0; }
+      if (e.jumpTimer > 80) { e.vy = -10; e.jumpTimer = 0; }
+    }
+
+    if (e.type === 'chase') {
+      const dx = player.x - e.x;
+      if (Math.abs(dx) < 400) e.vx = dx > 0 ? Math.abs(e.vx) : -Math.abs(e.vx);
+      else { if (e.x < e.minX || e.x + e.w > e.maxX) e.vx *= -1; }
+      e.x += e.vx;
+    }
+
+    if (!e.baseY) e.baseY = e.y;
 
     if (player.invincible > 0) return;
     if (rectOverlap(player, e)) {
-      // Saltar encima = matar enemigo
       if (player.vy > 0 && player.y + player.h < e.y + e.h / 2) {
-        e.dead = true;
-        player.vy = -10;
+        e.dead = true; player.vy = -10;
         gameState.score += 200;
-        spawnParticles(e.x + e.w / 2, e.y + e.h / 2, '#ff4444', 15);
+        spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ff4444', 15);
         updateHUD();
-      } else {
-        loseLife();
-      }
+      } else { loseLife(); }
     }
+  });
+
+  // Pinchos
+  if (player.invincible === 0) {
+    currentLevel.spikes.forEach(s => {
+      if (rectOverlap(player, { x: s.x, y: s.y, w: s.w, h: s.h })) loseLife();
+    });
+  }
+}
+
+function updateMovingPlatforms() {
+  currentLevel.movingPlatforms.forEach(p => {
+    p.x += p.vx || 0;
+    p.y += p.vy || 0;
+    if (p.vx && (p.x < p.minX || p.x + p.w > p.maxX)) p.vx *= -1;
+    if (p.vy && p.minY !== undefined && (p.y < p.minY || p.y > p.maxY)) p.vy *= -1;
   });
 }
 
@@ -637,6 +811,7 @@ function gameLoop() {
 
   if (!pipeAnim) player.update();
   updatePipeAnim();
+  updateMovingPlatforms();
   updateEnemies();
   updateCoins();
   checkGoal();
